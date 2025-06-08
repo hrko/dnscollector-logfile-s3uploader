@@ -1,0 +1,25 @@
+name: Build and Upload Release Assets
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-and-upload:
+    name: Build and Upload Release Assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Mise
+        uses: jdx/mise-action@v2
+
+      - name: Build artifacts
+        run: mise build .
+
+      - name: Upload assets to release
+        run: gh release upload ${{ github.ref_name }} ./release-assets/*
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
