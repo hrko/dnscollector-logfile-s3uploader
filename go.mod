@@ -1,6 +1,6 @@
-module hrko/dnscollector-logfile-s3uploader
+module github.com/hrko/dnscollector-logfile-s3uploader
 
-go 1.24.4
+go 1.24
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.36.3
@@ -24,5 +24,5 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.25.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.30.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.33.20 // indirect
-	github.com/aws/smithy-go v1.22.2 // indirect
+	github.com/aws/smithy-go v1.22.3 // indirect
 )
