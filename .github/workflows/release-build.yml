@@ -17,9 +17,9 @@ jobs:
         uses: jdx/mise-action@v2
 
       - name: Build artifacts
-        run: mise build . --output ./release-assets
+        run: mise build .
 
       - name: Upload assets to release
-        run: gh release upload ${{ github.ref_name }} ./release-assets/*
+        run: gh release upload ${{ github.ref_name }} ./build/*
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
