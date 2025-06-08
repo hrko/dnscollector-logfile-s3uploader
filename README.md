@@ -1,12 +1,12 @@
 # DNSCollector Logfile S3 Uploader
 
-`dnscollector-logfile-s3uploader` is a command-line utility written in Go, designed to integrate with the DNSCollector's `postrotate-command` feature. It uploads rotated log files to an S3-compatible object storage bucket.
+`dnscollector-logfile-s3uploader` is a command-line utility written in Go, designed to integrate with the [DNSCollector's `postrotate-command` feature](https://github.com/dmachard/DNS-collector/blob/main/docs/loggers/logger_file.md#postrotate-command). It uploads rotated log files to an S3-compatible object storage bucket.
 
 Configuration is managed entirely through environment variables, making it highly suitable for containerized environments and automated deployments.
 
 ## Features
 
-* Seamless integration with DNSCollector's `postrotate-command`.
+* Seamless integration with [DNSCollector's `postrotate-command`](https://github.com/dmachard/DNS-collector/blob/main/docs/loggers/logger_file.md#postrotate-command).
 * Uploads log files to AWS S3 or other S3-compatible services (e.g., MinIO, Ceph).
 * Configuration via environment variables for easy setup.
 * Support for custom S3 endpoints and path-style access for S3-compatible storage.
@@ -15,17 +15,29 @@ Configuration is managed entirely through environment variables, making it highl
 ## Prerequisites
 
 * A running instance of DNSCollector.
-* Go (version 1.21 or later) to build the binary.
 * AWS credentials configured in your environment. The tool uses the default AWS SDK credential chain, which searches for credentials in:
     1.  Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.).
     2.  Shared credentials file (`~/.aws/credentials`).
     3.  IAM role for an EC2 instance or ECS task.
 
+## Installation
+
+You can download a pre-compiled binary from the project's GitHub Releases page.
+
+1.  Download the latest binary for your operating system and architecture.
+2.  Place the compiled `dnscollector-logfile-s3uploader` binary in a directory accessible to the DNSCollector process, such as `/usr/local/bin/`.
+3.  Make the binary executable:
+    ```sh
+    chmod +x /usr/local/bin/dnscollector-logfile-s3uploader
+    ```
+
 ## Building from Source
+
+Alternatively, you can build the binary from the source code.
 
 1.  Clone or download the source code into a directory.
 
-2.  Build the binary using the Go toolchain:
+2.  You will need Go (version 1.24 or later) to build the binary. Build the binary using the Go toolchain:
     ```sh
     go build -o dnscollector-logfile-s3uploader .
     ```
@@ -55,14 +67,14 @@ logfile:
   mode: dnstap
   max-size: 100 # Rotate logs at 100MB
   
-  # Enable compression. The postrotate command will run AFTER compression.
+  # [Optional] Enable compression. The postrotate command will run AFTER compression.
   compress: true
 
   # Path to the compiled uploader program.
   postrotate-command: "/usr/local/bin/dnscollector-logfile-s3uploader"
   
-  # Set to true to delete the local log file after a successful upload.
-  postrotate-delete-success: true
+  # [Optional] Set to true to delete the local log file after a successful upload.
+  # postrotate-delete-success: true
 ```
 
 ## Workflow
