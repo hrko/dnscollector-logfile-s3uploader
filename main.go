@@ -40,15 +40,15 @@ func main() {
 		"log_file_name", logFileName,
 	)
 
-	// 3. Load configuration from environment variables.
-	bucket := os.Getenv(EnvBucket)
+	// 3. Load configuration from environment variables and expand them.
+	bucket := os.ExpandEnv(os.Getenv(EnvBucket))
 	if bucket == "" {
 		logger.Error("S3 bucket name not specified. Please set the environment variable.", "variable", EnvBucket)
 		os.Exit(1)
 	}
 
-	keyPrefix := os.Getenv(EnvKeyPrefix)
-	endpointURL := os.Getenv(EnvEndpointURL)
+	keyPrefix := os.ExpandEnv(os.Getenv(EnvKeyPrefix))
+	endpointURL := os.ExpandEnv(os.Getenv(EnvEndpointURL))
 	usePathStyle := os.Getenv(EnvUsePathStyle) == "true"
 	deleteOnSuccess := os.Getenv(EnvDeleteOnSuccess) == "true"
 
