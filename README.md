@@ -11,6 +11,7 @@ Configuration is managed entirely through environment variables, making it highl
 * Configuration via environment variables for easy setup.
 * Support for custom S3 endpoints and path-style access for S3-compatible storage.
 * Allows specifying an object key prefix for better organization within the S3 bucket.
+* Optionally deletes the local log file after a successful upload.
 
 ## Prerequisites
 
@@ -54,6 +55,7 @@ The tool is configured using the following environment variables.
 | `DNSC_LOGFILE_S3_KEY_PREFIX`     | An optional prefix for the S3 object key. The final key will be `<prefix>/<log_filename>`.                               | No       |
 | `DNSC_LOGFILE_S3_ENDPOINT_URL`   | The endpoint URL for an S3-compatible storage service. Leave unset for AWS S3.                                           | No       |
 | `DNSC_LOGFILE_S3_USE_PATH_STYLE` | Set to `true` to enable path-style bucket access (e.g., `endpoint/bucket/key`). Required by some S3-compatible services. | No       |
+| `DNSC_LOGFILE_DELETE_ON_SUCCESS` | Set to `true` to delete the local log file after a successful upload.                                                    | No       |
 
 ## Usage with DNSCollector
 
@@ -73,7 +75,9 @@ logfile:
   # Path to the compiled uploader program.
   postrotate-command: "/usr/local/bin/dnscollector-logfile-s3uploader"
   
-  # [Optional] Set to true to delete the local log file after a successful upload.
+  # [Optional] Set to true to delete the local log file after the postrotate-command exits successfully.
+  # Note: You can use this option OR the uploader's built-in deletion feature via DNSC_LOGFILE_DELETE_ON_SUCCESS.
+  # Using both is possible but redundant. It's recommended to choose one method.
   # postrotate-delete-success: true
 ```
 
@@ -90,7 +94,8 @@ When a log rotation is triggered in DNSCollector, the following process occurs:
     * Arg 3: The filename without the `toprocess-` prefix.
 5.  `dnscollector-logfile-s3uploader` starts, reads its configuration from environment variables, and uploads the file specified in Arg 1 to your S3 bucket. The object key is constructed using the optional prefix and the filename from Arg 3.
 6.  The uploader exits with code `0` on success or a non-zero code on failure.
-7.  If the script exits successfully and `postrotate-delete-success` is `true`, DNSCollector deletes the local `toprocess-` log file.
+7.  If the uploader was configured with `DNSC_LOGFILE_DELETE_ON_SUCCESS=true`, it will delete the local `toprocess-` file after a successful upload.
+8.  If the script exits successfully and DNSCollector's `postrotate-delete-success` is `true`, DNSCollector will also attempt to delete the local `toprocess-` log file.
 
 ## License
 

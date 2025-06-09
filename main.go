@@ -13,10 +13,11 @@ import (
 )
 
 const (
-	EnvBucket       = "DNSC_LOGFILE_S3_BUCKET"
-	EnvKeyPrefix    = "DNSC_LOGFILE_S3_KEY_PREFIX"
-	EnvEndpointURL  = "DNSC_LOGFILE_S3_ENDPOINT_URL"
-	EnvUsePathStyle = "DNSC_LOGFILE_S3_USE_PATH_STYLE"
+	EnvBucket          = "DNSC_LOGFILE_S3_BUCKET"
+	EnvKeyPrefix       = "DNSC_LOGFILE_S3_KEY_PREFIX"
+	EnvEndpointURL     = "DNSC_LOGFILE_S3_ENDPOINT_URL"
+	EnvUsePathStyle    = "DNSC_LOGFILE_S3_USE_PATH_STYLE"
+	EnvDeleteOnSuccess = "DNSC_LOGFILE_DELETE_ON_SUCCESS"
 )
 
 func main() {
@@ -49,12 +50,14 @@ func main() {
 	keyPrefix := os.Getenv(EnvKeyPrefix)
 	endpointURL := os.Getenv(EnvEndpointURL)
 	usePathStyle := os.Getenv(EnvUsePathStyle) == "true"
+	deleteOnSuccess := os.Getenv(EnvDeleteOnSuccess) == "true"
 
 	logger = logger.With(
 		"s3_bucket", bucket,
 		"s3_key_prefix", keyPrefix,
 		"s3_endpoint_url", endpointURL,
 		"s3_use_path_style", usePathStyle,
+		"delete_on_success", deleteOnSuccess,
 	)
 
 	// 4. Load default AWS configuration and create an S3 client.
@@ -99,4 +102,18 @@ func main() {
 	}
 
 	logger.Info("file uploaded successfully")
+
+	// 7. Delete the local file if configured to do so.
+	if deleteOnSuccess {
+		// We must close the file before attempting to delete it on some OSes.
+		file.Close()
+		logger.Info("deleting local log file", "path", logFilePath)
+		if err := os.Remove(logFilePath); err != nil {
+			// Log the error, but don't exit with a non-zero code,
+			// as the primary goal (upload) was successful.
+			logger.Error("failed to delete local log file", "error", err)
+		} else {
+			logger.Info("local log file deleted successfully")
+		}
+	}
 }
